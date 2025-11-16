@@ -59,6 +59,9 @@ let highscore = 0;
 
 const keyPressState = {};
 
+const ufoSpawnTimerIntervalSeconds = 6;
+const ufoSpawnCooldown = 5;
+
 // ------
 
 const NPC = {
@@ -70,6 +73,24 @@ const NPC = {
   speed: npcStartSpeed,
   direction: npcStartDirection,
   enteties: [],
+};
+
+const ufoWidth = 70;
+const ufoSy = 40;
+const ufoSx = 0 - ufoWidth;
+
+const UFO = {
+  color: "#800080",
+  width: ufoWidth,
+  height: 15,
+  sy: ufoSy,
+  sx: 0 - ufoWidth,
+  y: ufoSy,
+  x: ufoSx,
+  speed: npcStartSpeed * 2,
+  direction: 1,
+  value: 20,
+  active: false,
 };
 
 const npcPerRow = Math.floor(
@@ -110,7 +131,6 @@ window.addEventListener("keyup", function (e) {
 
 function init() {
   createInvaders();
-
   NPC.speed = 1;
 
   currentState = STATES.MENU;
@@ -268,6 +288,12 @@ function updateGame(dt) {
   updateShip();
   updateProjectiles();
   updateInvaders();
+  if (!UFO.active) {
+    ufoSpawn();
+  }
+  if (UFO.active) {
+    updateUfo();
+  }
   if (allInvadersDefeated()) {
     resetInvadersAndShip();
   }
@@ -313,6 +339,25 @@ function updateInvaders() {
   }
 
   movmentSteps++;
+}
+
+function ufoSpawn() {
+  let randomNumber = Math.floor(Math.random() * 500);
+  if (randomNumber == 42) {
+    UFO.x = UFO.sx;
+    UFO.active = true;
+  }
+}
+
+function updateUfo() {
+  UFO.x += UFO.speed * UFO.direction;
+  if (isShot(UFO)) {
+    UFO.active = false;
+  }
+
+  if (UFO.x >= scene.width) {
+    UFO.active = false;
+  }
 }
 
 function resetShipX() {
@@ -433,10 +478,16 @@ function drawGameState() {
       brush.fillRect(invader.x, invader.y, NPC.width, NPC.height);
     }
   }
+
+  if (UFO.active) {
+    brush.fillStyle = UFO.color;
+    brush.fillRect(UFO.x, UFO.y, UFO.width, UFO.height);
+  }
 }
 
 function goMenu() {
   score = 0;
+  UFO.active = false;
   resetInvadersAndShip();
   currentState = STATES.MENU;
 }
