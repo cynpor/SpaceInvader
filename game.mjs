@@ -58,6 +58,7 @@ const NPC = {
 const npcPerRow = Math.floor(
   (scene.width - NPC.height) / (NPC.width + NPC.height)
 );
+//const npcPerRow = Math.floor((scene.width - NPC.padding) / NPC.width);
 
 // ------
 
@@ -94,11 +95,39 @@ function init() {
     NPC.enteties.push({
       x,
       y,
-      color: "Yellow",
+      color: "#ffff00",
       active: true,
       width: NPC.width,
       height: NPC.height,
     });
+    let rowTwoY = y + NPC.height + NPC.padding;
+    NPC.enteties.push({
+      x,
+      y: rowTwoY,
+      color: "#ffa500",
+      active: true,
+      width: NPC.width,
+      height: NPC.height,
+    });
+    let rowThreeY = rowTwoY + NPC.height + NPC.padding;
+    NPC.enteties.push({
+      x,
+      y: rowThreeY,
+      color: "#ff0000",
+      active: true,
+      width: NPC.width,
+      height: NPC.height,
+    });
+    let rowFourY = rowThreeY + NPC.height + NPC.padding;
+    NPC.enteties.push({
+      x,
+      y: rowFourY,
+      color: "#00ff00",
+      active: true,
+      width: NPC.width,
+      height: NPC.height,
+    });
+
     x += NPC.width + NPC.padding;
   }
 
@@ -193,7 +222,7 @@ function updateInvaders() {
 
   let tx = NPC.speed * NPC.direction;
 
-  for (let i = 0; i < npcPerRow; i++) {
+  for (let i = 0; i < NPC.enteties.length; i++) {
     let invader = NPC.enteties[i];
 
     if (invader.active) {
@@ -303,7 +332,7 @@ function drawGameState() {
     }
   }
 
-  for (let i = 0; i < npcPerRow; i++) {
+  for (let i = 0; i < NPC.enteties.length; i++) {
     let invader = NPC.enteties[i];
     if (invader.active) {
       brush.fillStyle = invader.color;
