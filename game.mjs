@@ -58,7 +58,6 @@ const NPC = {
 const npcPerRow = Math.floor(
   (scene.width - NPC.height) / (NPC.width + NPC.height)
 );
-//const npcPerRow = Math.floor((scene.width - NPC.padding) / NPC.width);
 
 // ------
 
