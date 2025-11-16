@@ -20,6 +20,15 @@ const MENU = {
   ],
 };
 
+const GAMEOVERMENU = {
+  finalScoreText: "Final Score: ",
+  highscoreText: "Highscore: ",
+  button: {
+    text: "Back to Menu",
+    action: goMenu,
+  },
+};
+
 // ------
 
 const ship = {
@@ -41,6 +50,9 @@ const projectileCooldown = 40;
 let cooldown = 0;
 let projectiles = [];
 let score = 0;
+let highscore = 0;
+
+const keyPressState = {};
 
 // ------
 
@@ -49,7 +61,7 @@ const NPC = {
   height: 20,
   padding: 20,
   sx: 50,
-  sy: 75,
+  sy: 250,
   speed: 1,
   direction: 1,
   enteties: [],
@@ -76,11 +88,15 @@ let controllKeys = {
 };
 
 window.addEventListener("keydown", function (e) {
+  if (!keyPressState[e.key]) {
+    keyPressState[e.key] = currentState;
+  }
   controllKeys[e.key] = true;
 });
 
 window.addEventListener("keyup", function (e) {
   controllKeys[e.key] = false;
+  keyPressState[e.key] = null;
 });
 
 //#endregion
@@ -140,11 +156,17 @@ function init() {
   update();
 }
 
+function isKeyPressed(key) {
+  return controllKeys[key] && keyPressState[key] === currentState;
+}
+
 function update(time) {
   if (currentState === STATES.MENU) {
     updateMenu(time);
   } else if (currentState === STATES.PLAY) {
     updateGame(time);
+  } else if (currentState === STATES.GAMEOVER) {
+    updateGameOverMenu();
   }
 
   draw();
@@ -159,6 +181,8 @@ function draw() {
   } else if (currentState === STATES.PLAY) {
     drawGameState();
     drawScore();
+  } else if (currentState === STATES.GAMEOVER) {
+    drawGameOverMenu();
   }
 }
 
@@ -169,7 +193,7 @@ init(); // Starts the game
 //#region Game functions
 
 function updateMenu(dt) {
-  if (controllKeys[" "]) {
+  if (isKeyPressed(" ")) {
     MENU.buttons[MENU.currentIndex].action();
   }
 
@@ -180,6 +204,12 @@ function updateMenu(dt) {
   }
 
   MENU.currentIndex = clamp(MENU.currentIndex, 0, MENU.buttons.length - 1);
+}
+
+function updateGameOverMenu(dt) {
+  if (isKeyPressed(" ")) {
+    GAMEOVERMENU.button.action();
+  }
 }
 
 function drawMenu() {
@@ -196,9 +226,28 @@ function drawMenu() {
   }
 }
 
+function drawGameOverMenu() {
+  let sy = 100;
+  let finalScoreText = GAMEOVERMENU.finalScoreText + score;
+  brush.font = "50px serif";
+
+  brush.fillText(finalScoreText, 100, sy);
+  sy += 50;
+
+  let highscoreText = GAMEOVERMENU.highscoreText + highscore;
+
+  brush.fillText(highscoreText, 100, sy);
+  sy += 100;
+
+  let text = GAMEOVERMENU.button.text;
+  text = `* ${text} *`;
+
+  brush.fillText(text, 100, sy);
+}
+
 function drawScore() {
   brush.font = "50px serif";
-  brush.fillStyle = "magenta";
+  brush.fillStyle = "#000000ff";
   brush.fillText(score, 30, 40);
 }
 
@@ -207,6 +256,9 @@ function updateGame(dt) {
   updateProjectiles();
   updateInvaders();
   if (isGameOver()) {
+    if (score > highscore) {
+      highscore = score;
+    }
     currentState = STATES.GAMEOVER;
   }
 }
@@ -242,13 +294,18 @@ function updateInvaders() {
 }
 
 function isGameOver() {
+  let invaderReachedShip = false;
+  let allInvadersDefeated = true;
   for (let invader of NPC.enteties) {
     if (invader.active) {
-      return false;
+      allInvadersDefeated = false;
+      if (invader.y + invader.height >= ship.y) {
+        invaderReachedShip = true;
+      }
     }
   }
 
-  return true;
+  return invaderReachedShip || allInvadersDefeated;
 }
 
 function isShot(target) {
@@ -342,6 +399,10 @@ function drawGameState() {
       brush.fillRect(invader.x, invader.y, NPC.width, NPC.height);
     }
   }
+}
+
+function goMenu() {
+  currentState = STATES.MENU;
 }
 
 function startPlay() {
