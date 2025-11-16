@@ -1,6 +1,6 @@
 //#region CONSTANTS ------------------------------------------------------------------
 const FPS = 1000 / 60;
-const STATES = { MENU: 1, PLAY: 2, GAMEOVER: 3 };
+const STATES = { MENU: 1, PLAY: 2, GAMEOVER: 3, HIGHSCORE: 4 };
 
 //#endregion
 
@@ -19,14 +19,14 @@ const MENU = {
     { text: "High Scores", action: showHigScores },
   ],
 };
+const highscoreText = "Highscore: ";
+const backToMenuButton = {
+  text: "Back to Menu",
+  action: goMenu,
+};
 
 const GAMEOVERMENU = {
   finalScoreText: "Final Score: ",
-  highscoreText: "Highscore: ",
-  button: {
-    text: "Back to Menu",
-    action: goMenu,
-  },
 };
 
 // ------
@@ -58,9 +58,6 @@ let score = 0;
 let highscore = 0;
 
 const keyPressState = {};
-
-const ufoSpawnTimerIntervalSeconds = 6;
-const ufoSpawnCooldown = 5;
 
 // ------
 
@@ -195,11 +192,13 @@ function isKeyPressed(key) {
 
 function update(time) {
   if (currentState === STATES.MENU) {
-    updateMenu(time);
+    updateMenu();
   } else if (currentState === STATES.PLAY) {
-    updateGame(time);
+    updateGame();
   } else if (currentState === STATES.GAMEOVER) {
     updateGameOverMenu();
+  } else if (currentState === STATES.HIGHSCORE) {
+    updateHighscore();
   }
 
   draw();
@@ -216,6 +215,8 @@ function draw() {
     drawScore();
   } else if (currentState === STATES.GAMEOVER) {
     drawGameOverMenu();
+  } else if (currentState === STATES.HIGHSCORE) {
+    drawHighscore();
   }
 }
 
@@ -225,7 +226,7 @@ init(); // Starts the game
 
 //#region Game functions
 
-function updateMenu(dt) {
+function updateMenu() {
   if (isKeyPressed(" ")) {
     MENU.buttons[MENU.currentIndex].action();
   }
@@ -239,9 +240,15 @@ function updateMenu(dt) {
   MENU.currentIndex = clamp(MENU.currentIndex, 0, MENU.buttons.length - 1);
 }
 
-function updateGameOverMenu(dt) {
+function updateGameOverMenu() {
   if (isKeyPressed(" ")) {
-    GAMEOVERMENU.button.action();
+    backToMenuButton.action();
+  }
+}
+
+function updateHighscore() {
+  if (isKeyPressed(" ")) {
+    backToMenuButton.action();
   }
 }
 
@@ -267,12 +274,22 @@ function drawGameOverMenu() {
   brush.fillText(finalScoreText, 100, sy);
   sy += 50;
 
-  let highscoreText = GAMEOVERMENU.highscoreText + highscore;
-
-  brush.fillText(highscoreText, 100, sy);
+  brush.fillText(highscoreText + highscore, 100, sy);
   sy += 100;
 
-  let text = GAMEOVERMENU.button.text;
+  let text = backToMenuButton.text;
+  text = `* ${text} *`;
+
+  brush.fillText(text, 100, sy);
+}
+
+function drawHighscore() {
+  let sy = 100;
+
+  brush.fillText(highscoreText + highscore, 100, sy);
+  sy += 100;
+
+  let text = backToMenuButton.text;
   text = `* ${text} *`;
 
   brush.fillText(text, 100, sy);
@@ -284,7 +301,7 @@ function drawScore() {
   brush.fillText(score, 30, 40);
 }
 
-function updateGame(dt) {
+function updateGame() {
   updateShip();
   updateProjectiles();
   updateInvaders();
@@ -496,7 +513,9 @@ function startPlay() {
   currentState = STATES.PLAY;
 }
 
-function showHigScores() {}
+function showHigScores() {
+  currentState = STATES.HIGHSCORE;
+}
 
 //#endregion
 
