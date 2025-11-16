@@ -1,6 +1,6 @@
 //#region CONSTANTS ------------------------------------------------------------------
 const FPS = 1000 / 60;
-const STATES = { MENU: 1, PLAY: 2, GAMEOVER: 3 }
+const STATES = { MENU: 1, PLAY: 2, GAMEOVER: 3 };
 
 //#endregion
 
@@ -16,21 +16,21 @@ const MENU = {
   currentIndex: 0,
   buttons: [
     { text: "Play", action: startPlay },
-    { text: "High Scores", action: showHigScores }
-  ]
-}
+    { text: "High Scores", action: showHigScores },
+  ],
+};
 
 // ------
 
 const ship = {
-  x: (scene.width * 0.5) - 50,
+  x: scene.width * 0.5 - 50,
   y: scene.height - 30,
   width: 50,
   height: 20,
   velocityX: 0,
   velocityY: 0,
-  maxVelocity: 3
-}
+  maxVelocity: 3,
+};
 
 // ------
 
@@ -51,10 +51,12 @@ const NPC = {
   sy: 20,
   speed: 1,
   direction: 1,
-  enteties: []
-}
+  enteties: [],
+};
 
-const npcPerRow = Math.floor((scene.width - NPC.height) / (NPC.width + NPC.height));
+const npcPerRow = Math.floor(
+  (scene.width - NPC.height) / (NPC.width + NPC.height)
+);
 
 // ------
 
@@ -63,14 +65,14 @@ const maxMovmentSteps = 50;
 let movmentSteps = maxMovmentSteps;
 
 // ------
-// The following is a simple way of 
+// The following is a simple way of
 let controllKeys = {
   ArrowDown: false,
   ArrowUp: false,
   ArrowLeft: false,
   ArrowRight: false,
   " ": false, // space
-}
+};
 
 window.addEventListener("keydown", function (e) {
   controllKeys[e.key] = true;
@@ -78,20 +80,24 @@ window.addEventListener("keydown", function (e) {
 
 window.addEventListener("keyup", function (e) {
   controllKeys[e.key] = false;
-})
-
+});
 
 //#endregion
-
 
 //#region Game engine ----------------------------------------------------------------
 
 function init() {
-
   let x = NPC.sx;
   let y = NPC.sy;
   for (let i = 0; i < npcPerRow; i++) {
-    NPC.enteties.push({ x, y, color: "Yellow", active: true, width: NPC.width, height: NPC.height });
+    NPC.enteties.push({
+      x,
+      y,
+      color: "Yellow",
+      active: true,
+      width: NPC.width,
+      height: NPC.height,
+    });
     x += NPC.width + NPC.padding;
   }
 
@@ -102,7 +108,6 @@ function init() {
 }
 
 function update(time) {
-
   if (currentState === STATES.MENU) {
     updateMenu(time);
   } else if (currentState === STATES.PLAY) {
@@ -110,7 +115,7 @@ function update(time) {
   }
 
   draw();
-  requestAnimationFrame(update)
+  requestAnimationFrame(update);
 }
 
 function draw() {
@@ -121,22 +126,18 @@ function draw() {
   } else if (currentState === STATES.PLAY) {
     drawGameState();
   }
-
 }
 
 init(); // Starts the game
 
 //#endregion
 
-
 //#region Game functions
 
 function updateMenu(dt) {
-
   if (controllKeys[" "]) {
     MENU.buttons[MENU.currentIndex].action();
   }
-
 
   if (controllKeys.ArrowUp) {
     MENU.currentIndex--;
@@ -145,24 +146,19 @@ function updateMenu(dt) {
   }
 
   MENU.currentIndex = clamp(MENU.currentIndex, 0, MENU.buttons.length - 1);
-
-
 }
 
 function drawMenu() {
   let sy = 100;
   for (let i = 0; i < MENU.buttons.length; i++) {
-
-
     let text = MENU.buttons[i].text;
     if (i == MENU.currentIndex) {
-      text = `* ${text} *`
+      text = `* ${text} *`;
     }
 
     brush.font = "50px serif";
     brush.fillText(text, 100, sy);
     sy += 50;
-
   }
 }
 
@@ -176,12 +172,11 @@ function updateGame(dt) {
 }
 
 function updateInvaders() {
-
   let ty = 0;
 
   if (NPC.direction == 1 && movmentSteps >= maxMovmentSteps * 2) {
     movmentSteps = 0;
-    NPC.direction *= -1
+    NPC.direction *= -1;
   } else if (NPC.direction == -1 && movmentSteps >= maxMovmentSteps * 2) {
     movmentSteps = 0;
     NPC.direction *= -1;
@@ -194,20 +189,16 @@ function updateInvaders() {
     let invader = NPC.enteties[i];
 
     if (invader.active) {
-
       invader.x += tx;
       invader.y += ty;
 
       if (isShot(invader)) {
         invader.active = false;
       }
-
     }
-
   }
 
   movmentSteps++;
-
 }
 
 function isGameOver() {
@@ -221,10 +212,20 @@ function isGameOver() {
 }
 
 function isShot(target) {
-
   for (let i = 0; i < projectiles.length; i++) {
     let projectile = projectiles[i];
-    if (overlaps(target.x, target.y, target.width, target.height, projectile.x, projectile.y, projectile.width, projectile.height)) {
+    if (
+      overlaps(
+        target.x,
+        target.y,
+        target.width,
+        target.height,
+        projectile.x,
+        projectile.y,
+        projectile.width,
+        projectile.height
+      )
+    ) {
       projectile.active = false;
       return true;
     }
@@ -240,7 +241,11 @@ function updateShip() {
     ship.velocityX++;
   }
 
-  ship.velocityX = clamp(ship.velocityX, ship.maxVelocity * -1, ship.maxVelocity);
+  ship.velocityX = clamp(
+    ship.velocityX,
+    ship.maxVelocity * -1,
+    ship.maxVelocity
+  );
 
   let tmpX = ship.x + ship.velocityX;
   tmpX = clamp(tmpX, 0, scene.width - ship.width);
@@ -250,15 +255,22 @@ function updateShip() {
   cooldown--;
 
   if (controllKeys[" "] && cooldown <= 0) {
-    projectiles.push({ x: ship.x + ship.width * 0.5, y: ship.y, dir: -1, active: true, width: projectieWidth, height: projectileHeight });
+    projectiles.push({
+      x: ship.x + ship.width * 0.5,
+      y: ship.y,
+      dir: -1,
+      active: true,
+      width: projectieWidth,
+      height: projectileHeight,
+    });
     cooldown = projectileCooldown;
   }
 }
 
 function updateProjectiles() {
-  let activeProjectiles = []
+  let activeProjectiles = [];
   for (let i = 0; i < projectiles.length; i++) {
-    let projectile = projectiles[i]
+    let projectile = projectiles[i];
     projectile.y += projectileSpeed * projectile.dir;
     if (projectile.y + projectileHeight > 0 && projectile.active) {
       activeProjectiles.push(projectile);
@@ -268,13 +280,17 @@ function updateProjectiles() {
 }
 
 function drawGameState() {
-
   brush.fillStyle = "Black";
   brush.fillRect(ship.x, ship.y, ship.width, ship.height);
 
   for (let projectile of projectiles) {
     if (projectile.active) {
-      brush.fillRect(projectile.x, projectile.y, projectieWidth, projectileHeight);
+      brush.fillRect(
+        projectile.x,
+        projectile.y,
+        projectieWidth,
+        projectileHeight
+      );
     }
   }
 
@@ -291,9 +307,7 @@ function startPlay() {
   currentState = STATES.PLAY;
 }
 
-function showHigScores() {
-
-}
+function showHigScores() {}
 
 //#endregion
 
@@ -310,11 +324,10 @@ function clearScreen() {
 }
 
 function clamp(val, min, max) {
-  return Math.min(Math.max(val, min), max)
+  return Math.min(Math.max(val, min), max);
 }
 
 function overlaps(x1, y1, w1, h1, x2, y2, w2, h2) {
-
   if (x1 + w1 < x2 || x2 + w2 < x1) {
     return false;
   }
