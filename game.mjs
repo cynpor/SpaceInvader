@@ -31,8 +31,9 @@ const GAMEOVERMENU = {
 
 // ------
 
+const shipStartingX = scene.width * 0.5 - 50;
 const ship = {
-  x: scene.width * 0.5 - 50,
+  x: shipStartingX,
   y: scene.height - 30,
   width: 50,
   height: 20,
@@ -47,6 +48,10 @@ const projectieWidth = 3;
 const projectileHeight = 5;
 const projectileSpeed = 2;
 const projectileCooldown = 40;
+
+const npcStartDirection = 1;
+const npcStartSpeed = 1;
+
 let cooldown = 0;
 let projectiles = [];
 let score = 0;
@@ -61,9 +66,9 @@ const NPC = {
   height: 20,
   padding: 20,
   sx: 50,
-  sy: 250,
-  speed: 1,
-  direction: 1,
+  sy: 75,
+  speed: npcStartSpeed,
+  direction: npcStartDirection,
   enteties: [],
 };
 
@@ -104,6 +109,19 @@ window.addEventListener("keyup", function (e) {
 //#region Game engine ----------------------------------------------------------------
 
 function init() {
+  createInvaders();
+
+  NPC.speed = 1;
+
+  currentState = STATES.MENU;
+  update();
+}
+
+function createInvaders() {
+  movmentSteps = maxMovmentSteps;
+  NPC.speed = npcStartSpeed;
+  NPC.direction = npcStartDirection;
+
   let x = NPC.sx;
   let y = NPC.sy;
   for (let i = 0; i < npcPerRow; i++) {
@@ -149,11 +167,6 @@ function init() {
 
     x += NPC.width + NPC.padding;
   }
-
-  NPC.speed = 1;
-
-  currentState = STATES.MENU;
-  update();
 }
 
 function isKeyPressed(key) {
@@ -255,12 +268,21 @@ function updateGame(dt) {
   updateShip();
   updateProjectiles();
   updateInvaders();
+  if (allInvadersDefeated()) {
+    resetInvadersAndShip();
+  }
   if (isGameOver()) {
     if (score > highscore) {
       highscore = score;
     }
     currentState = STATES.GAMEOVER;
   }
+}
+
+function resetInvadersAndShip() {
+  NPC.enteties = [];
+  createInvaders();
+  resetShipX();
 }
 
 function updateInvaders() {
@@ -293,19 +315,31 @@ function updateInvaders() {
   movmentSteps++;
 }
 
+function resetShipX() {
+  ship.x = shipStartingX;
+}
+
 function isGameOver() {
   let invaderReachedShip = false;
-  let allInvadersDefeated = true;
   for (let invader of NPC.enteties) {
     if (invader.active) {
-      allInvadersDefeated = false;
       if (invader.y + invader.height >= ship.y) {
         invaderReachedShip = true;
       }
     }
   }
 
-  return invaderReachedShip || allInvadersDefeated;
+  return invaderReachedShip;
+}
+
+function allInvadersDefeated() {
+  let allInvadersDefeated = true;
+  for (let invader of NPC.enteties) {
+    if (invader.active) {
+      allInvadersDefeated = false;
+    }
+  }
+  return allInvadersDefeated;
 }
 
 function isShot(target) {
@@ -402,6 +436,8 @@ function drawGameState() {
 }
 
 function goMenu() {
+  score = 0;
+  resetInvadersAndShip();
   currentState = STATES.MENU;
 }
 
