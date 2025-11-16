@@ -98,6 +98,7 @@ function init() {
       active: true,
       width: NPC.width,
       height: NPC.height,
+      value: 4,
     });
     let rowTwoY = y + NPC.height + NPC.padding;
     NPC.enteties.push({
@@ -107,6 +108,7 @@ function init() {
       active: true,
       width: NPC.width,
       height: NPC.height,
+      value: 3,
     });
     let rowThreeY = rowTwoY + NPC.height + NPC.padding;
     NPC.enteties.push({
@@ -116,6 +118,7 @@ function init() {
       active: true,
       width: NPC.width,
       height: NPC.height,
+      value: 2,
     });
     let rowFourY = rowThreeY + NPC.height + NPC.padding;
     NPC.enteties.push({
@@ -125,6 +128,7 @@ function init() {
       active: true,
       width: NPC.width,
       height: NPC.height,
+      value: 1,
     });
 
     x += NPC.width + NPC.padding;
@@ -263,7 +267,7 @@ function isShot(target) {
       )
     ) {
       projectile.active = false;
-      score++;
+      score += target.value;
       return true;
     }
   }
