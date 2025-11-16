@@ -40,6 +40,7 @@ const projectileSpeed = 2;
 const projectileCooldown = 40;
 let cooldown = 0;
 let projectiles = [];
+let score = 0;
 
 // ------
 
@@ -48,7 +49,7 @@ const NPC = {
   height: 20,
   padding: 20,
   sx: 50,
-  sy: 20,
+  sy: 75,
   speed: 1,
   direction: 1,
   enteties: [],
@@ -125,6 +126,7 @@ function draw() {
     drawMenu();
   } else if (currentState === STATES.PLAY) {
     drawGameState();
+    drawScore();
   }
 }
 
@@ -160,6 +162,12 @@ function drawMenu() {
     brush.fillText(text, 100, sy);
     sy += 50;
   }
+}
+
+function drawScore() {
+  brush.font = "50px serif";
+  brush.fillStyle = "magenta";
+  brush.fillText(score, 30, 40);
 }
 
 function updateGame(dt) {
@@ -227,6 +235,7 @@ function isShot(target) {
       )
     ) {
       projectile.active = false;
+      score++;
       return true;
     }
   }
